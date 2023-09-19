@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    appname: ubi-persistent
+  name: ubi-persistent
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      appname: ubi-persistent
+  template:
+    metadata:
+      labels:
+        appname: ubi-persistent
+    spec:
+      containers:
+      - image: registry.access.redhat.com/ubi8/ubi
+        imagePullPolicy: IfNotPresent
+        name: ubi-persistent
+        command: ['sh', '-c', 'trap exit TERM; while true; do echo $(date) | tee -a /mnt/ubi-storage/outfile; sync; sleep 10 & wait; done']
+        volumeMounts:
+          - name: ubi-pvc
+            mountPath: /mnt/ubi-storage
